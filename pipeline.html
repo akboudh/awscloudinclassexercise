@@ -27,20 +27,19 @@
   </nav>
   <main>
     <h1>Connect S3 Event to Lambda</h1>
-    <p>We’ll configure the <strong>input</strong> bucket to trigger Lambda whenever a <code>.md</code> file is created.</p>
+    <p>Configure the <strong>input</strong> bucket to trigger the Lambda on <code>.md</code> uploads.</p>
 
     <h2>Steps</h2>
     <ol>
-      <li>Open <strong>S3</strong> → your <strong>input</strong> bucket (<code>notes-in-…</code>).</li>
-      <li>Go to <strong>Properties</strong> → scroll to <strong>Event notifications</strong>.</li>
-      <li>Click <strong>Create event notification</strong> and set:</li>
+      <li>S3 → open your <strong>input</strong> bucket (<code>notes-in-…</code>).</li>
+      <li>Go to <strong>Properties</strong> → <strong>Event notifications</strong> → <strong>Create event notification</strong>.</li>
     </ol>
 
     <table>
       <tr><th>Field</th><th>Value</th></tr>
       <tr><td>Name</td><td><code>md-upload</code></td></tr>
       <tr><td>Event types</td><td><em>All object create events</em></td></tr>
-      <tr><td>Prefix</td><td>(leave blank)</td></tr>
+      <tr><td>Prefix</td><td>(blank)</td></tr>
       <tr><td>Suffix</td><td><code>.md</code></td></tr>
       <tr><td>Destination</td><td>Lambda function → <code>md_to_html_publisher</code></td></tr>
     </table>
