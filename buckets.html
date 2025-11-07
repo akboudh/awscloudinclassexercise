@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Buckets — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; margin: 0; }
+    nav { background:#f7f7f8; min-height: 100vh; padding: 1.25rem; border-right: 1px solid #eee; position: sticky; top: 0; }
+    nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight:700; }
+    main { padding: 2rem 2rem 4rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius: 4px; }
+    ol li { margin-bottom: .45rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a href="overview.html">Overview</a>
+    <a class="active" href="buckets.html">Buckets</a>
+    <a href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a href="pipeline.html">S3 Event → Lambda</a>
+    <a href="test.html">Test</a>
+    <a href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Create Two Buckets</h1>
+    <p>We’ll use separate buckets for input and output. Keep all defaults (Block Public Access ON). Ensure both buckets are in the same Region and you stay in that Region for the whole lab.</p>
+
+    <h2>Names</h2>
+    <ul>
+      <li><strong>Input bucket:</strong> <code>notes-in-&lt;yourinitials+3digits&gt;</code> (e.g., <code>notes-in-ad123</code>)</li>
+      <li><strong>Output bucket:</strong> <code>notes-out-&lt;yourinitials+3digits&gt;</code> (e.g., <code>notes-out-ad123</code>)</li>
+    </ul>
+
+    <h2>Steps</h2>
+    <ol>
+      <li>Open <strong>Amazon S3</strong> → <strong>Create bucket</strong>.</li>
+      <li>Enter your input bucket name (e.g., <code>notes-in-ad123</code>), keep all defaults → <strong>Create bucket</strong>.</li>
+      <li>Repeat for your output bucket (e.g., <code>notes-out-ad123</code>).</li>
+    </ol>
+
+    <h2>Upload a test Markdown file to the <em>input</em> bucket</h2>
+    <ol>
+      <li>Create a local file named <code>hello.md</code> with content:
+        <pre># hello
+
+this is **bold** text.</pre>
+      </li>
+      <li>Upload <code>hello.md</code> to your <strong>input</strong> bucket (<code>notes-in-…</code>).</li>
+    </ol>
+
+    <p>Do not upload anything to the output bucket manually.</p>
+  </main>
+</body>
+</html>
