@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Create Lambda — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system; display:grid; grid-template-columns:260px 1fr; gap:2rem; margin:0; }
+    nav { background:#f7f7f8; min-height:100vh; padding:1.25rem; border-right:1px solid #eee; position:sticky; top:0; }
+    nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight:700; }
+    main { padding:2rem 2rem 4rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius:4px; }
+    ol li { margin-bottom:.45rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a href="overview.html">Overview</a>
+    <a href="buckets.html">Buckets</a>
+    <a class="active" href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a href="pipeline.html">S3 Event → Lambda</a>
+    <a href="test.html">Test</a>
+    <a href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Create the Lambda Function</h1>
+    <p>We will use the existing Academy role <code>LabRole</code> (no IAM creation).</p>
+
+    <ol>
+      <li>Open <strong>AWS Lambda</strong> → <strong>Create function</strong>.</li>
+      <li><strong>Function name:</strong> <code>md_to_html_publisher</code></li>
+      <li><strong>Runtime:</strong> Python 3.12</li>
+      <li>Expand <strong>Change default execution role</strong> → select <strong>Use existing role</strong>.</li>
+      <li>Choose <strong>LabRole</strong>.</li>
+      <li>Click <strong>Create function</strong>.</li>
+    </ol>
+
+    <h2>Set the handler name</h2>
+    <ol>
+      <li>Open <strong>Configuration</strong> → <strong>Runtime settings</strong>.</li>
+      <li>Set <strong>Handler</strong> to: <code>lambda_function.handler</code></li>
+      <li>Click <strong>Save</strong>.</li>
+    </ol>
+
+    <p>Next, you’ll paste the function code.</p>
+  </main>
+</body>
+</html>
