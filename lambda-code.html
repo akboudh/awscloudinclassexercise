@@ -9,8 +9,10 @@
     nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
     nav a.active { font-weight:700; }
     main { padding:2rem 2rem 4rem; }
-    code, pre { background:#f4f4f6; padding:.6rem .8rem; border-radius:6px; overflow:auto; }
+    code, pre { background:#f4f4f6; padding:.8rem 1rem; border-radius:6px; overflow:auto; }
     .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; }
+    .actions { margin:.6rem 0 1rem; }
+    .btn { display:inline-block; padding:.5rem .8rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -28,20 +30,24 @@
     <h1>Paste the Lambda Code (Python)</h1>
 
     <ol>
-      <li>On the function’s <strong>Code</strong> tab, open <code>lambda_function.py</code>.</li>
-      <li>Select all, replace with the code below, then click <strong>Deploy</strong>.</li>
+      <li>Open the function’s <strong>Code</strong> tab and click <code>lambda_function.py</code>.</li>
+      <li>Either click the <strong>Raw file</strong> button below to open a copy-and-paste-safe version, or copy from the display block.</li>
+      <li>Paste into the editor and click <strong>Deploy</strong>.</li>
     </ol>
 
-    <div class="tip">
-      <strong>Tips:</strong>
-      <ul>
-        <li>Ensure nothing appears before <code>import os</code> on line 1.</li>
-        <li>Handler must be <code>lambda_function.handler</code> (new console: Code tab → right-side “Runtime settings”).</li>
-        <li>We support two-bucket mode by default (<code>-in</code> → <code>-out</code>). You can also set an env var <code>OUTPUT_BUCKET</code>.</li>
-      </ul>
+    <div class="actions">
+      <!-- assumes the raw file is in the repo root -->
+      <a class="btn" href="lambda_function.py" target="_blank" rel="noopener">Open Raw <code>lambda_function.py</code></a>
     </div>
 
-    <pre><code>import os
+    <div class="tip">
+      <strong>Handler (new console):</strong> Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → set to <code>lambda_function.handler</code> → Save.
+      <br><strong>Optional:</strong> Set env var <code>OUTPUT_BUCKET</code> to your output bucket name.
+    </div>
+
+    <!-- Correctly escaped for on-page display -->
+    <pre><code>&lt;!-- DISPLAY COPY ONLY (students should prefer the Raw button above) --&gt;
+import os
 import json
 import boto3
 import urllib.parse
@@ -50,14 +56,14 @@ import re
 
 s3 = boto3.client('s3')
 
-def inline_md(text: str) -> str:
+def inline_md(text: str) -&gt; str:
     text = re.sub(r'`([^`]+)`', r'&lt;code&gt;\1&lt;/code&gt;', text)
     text = re.sub(r'\*\*([^*]+)\*\*', r'&lt;strong&gt;\1&lt;/strong&gt;', text)
     text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'&lt;em&gt;\1&lt;/em&gt;', text)
     text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href="\2" target="_blank" rel="noopener"&gt;\1&lt;/a&gt;', text)
     return text
 
-def md_to_html(md: str) -> str:
+def md_to_html(md: str) -&gt; str:
     lines = md.splitlines()
     html_lines = []
     in_list = False
@@ -65,7 +71,7 @@ def md_to_html(md: str) -> str:
     def close_list():
         nonlocal in_list
         if in_list:
-            html_lines.append("</ul>")
+            html_lines.append("&lt;/ul&gt;")
             in_list = False
 
     for raw in lines:
@@ -131,7 +137,6 @@ def handler(event, context):
 
         html = md_to_html(md)
 
-        # Prefer explicit OUTPUT_BUCKET; else try -in -> -out; else fallback
         dst_bucket = os.environ.get("OUTPUT_BUCKET")
         if not dst_bucket:
             if src_bucket.endswith("-in"):
@@ -146,12 +151,6 @@ def handler(event, context):
 
     return {"status": "ok"}</code></pre>
 
-    <h2>Optional: Environment variable</h2>
-    <p>Set <strong>Configuration → Environment variables</strong>:</p>
-    <ul>
-      <li><strong>Key:</strong> <code>OUTPUT_BUCKET</code></li>
-      <li><strong>Value:</strong> your output bucket name (e.g., <code>notes-out-ad123</code>)</li>
-    </ul>
   </main>
 </body>
 </html>
