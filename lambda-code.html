@@ -35,9 +35,24 @@
     <a class="btn" href="lambda_function.py" download>Download lambda_function.py</a>
 
     <div class="tip">
-      <strong>Handler:</strong> Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → set to:<br>
-      <code>lambda_function.handler</code><br><br>
-      <strong>Optional:</strong> Set env var <code>OUTPUT_BUCKET</code> = your output bucket name
+      <strong>Handler MUST be:</strong>
+      <div><code>lambda_function.handler</code></div>
+      <br>
+      AWS Console path:<br>
+      Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → paste <code>lambda_function.handler</code> → Save.
+    </div>
+
+    <div class="tip">
+      <strong>Environment Variable (sets your output bucket):</strong><br>
+      AWS Console →
+      <em>Configuration</em> tab →
+      <em>Environment variables</em> →
+      <strong>Edit</strong> →
+      <strong>Add environment variable</strong><br><br>
+      Key: <code>OUTPUT_BUCKET</code><br>
+      Value: <code>your-output-bucket-name</code><br><br>
+      Example value: <code>notes-out-12345</code><br><br>
+      Click Save.
     </div>
 
   </main>
