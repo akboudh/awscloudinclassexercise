@@ -28,13 +28,21 @@
     <h1>Paste the Lambda Code (Python)</h1>
 
     <ol>
-      <li>On your function’s <strong>Code</strong> tab, open <code>lambda_function.py</code>.</li>
-      <li>Select all content, replace with this code, and click <strong>Deploy</strong>.</li>
+      <li>On the function’s <strong>Code</strong> tab, open <code>lambda_function.py</code>.</li>
+      <li>Select all, replace with the code below, then click <strong>Deploy</strong>.</li>
     </ol>
 
-    <div class="tip"><strong>Tip:</strong> Ensure there is nothing before <code>import json</code> on line 1, and your handler is set to <code>lambda_function.handler</code>.</div>
+    <div class="tip">
+      <strong>Tips:</strong>
+      <ul>
+        <li>Ensure nothing appears before <code>import os</code> on line 1.</li>
+        <li>Handler must be <code>lambda_function.handler</code> (new console: Code tab → right-side “Runtime settings”).</li>
+        <li>We support two-bucket mode by default (<code>-in</code> → <code>-out</code>). You can also set an env var <code>OUTPUT_BUCKET</code>.</li>
+      </ul>
+    </div>
 
-    <pre><code>import json
+    <pre><code>import os
+import json
 import boto3
 import urllib.parse
 from datetime import datetime
@@ -123,21 +131,27 @@ def handler(event, context):
 
         html = md_to_html(md)
 
-        # derive output bucket by swapping -in → -out
-        if src_bucket.endswith("-in"):
-            dst_bucket = src_bucket.replace("-in","-out",1)
-        else:
-            dst_bucket = src_bucket  # fallback
+        # Prefer explicit OUTPUT_BUCKET; else try -in -> -out; else fallback
+        dst_bucket = os.environ.get("OUTPUT_BUCKET")
+        if not dst_bucket:
+            if src_bucket.endswith("-in"):
+                dst_bucket = src_bucket.replace("-in","-out",1)
+            else:
+                dst_bucket = src_bucket
 
         dst_key = src_key.rsplit(".", 1)[0] + ".html"
 
         s3.put_object(Bucket=dst_bucket, Key=dst_key, Body=html.encode("utf-8"), ContentType="text/html")
-
         update_index(dst_bucket)
 
     return {"status": "ok"}</code></pre>
 
-    <p>Click <strong>Deploy</strong> after pasting.</p>
+    <h2>Optional: Environment variable</h2>
+    <p>Set <strong>Configuration → Environment variables</strong>:</p>
+    <ul>
+      <li><strong>Key:</strong> <code>OUTPUT_BUCKET</code></li>
+      <li><strong>Value:</strong> your output bucket name (e.g., <code>notes-out-ad123</code>)</li>
+    </ul>
   </main>
 </body>
 </html>
