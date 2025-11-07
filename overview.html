@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Overview — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; margin: 0; }
+    nav { background:#f7f7f8; min-height: 100vh; padding: 1.25rem; border-right: 1px solid #eee; position: sticky; top: 0; }
+    nav a { display:block; margin: .35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight: 700; }
+    main { padding: 2rem 2rem 4rem; }
+    h1,h2 { margin-top: 1.2rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a class="active" href="overview.html">Overview</a>
+    <a href="buckets.html">Buckets</a>
+    <a href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a href="pipeline.html">S3 Event → Lambda</a>
+    <a href="test.html">Test</a>
+    <a href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Overview</h1>
+    <p>In this lab you will build a tiny serverless “publisher”. When a Markdown (<code>.md</code>) file is uploaded to an <strong>input S3 bucket</strong>, a Lambda function converts it to <strong>HTML</strong> and writes it to an <strong>output S3 bucket</strong>. The function also maintains a simple <code>index.html</code> of all generated pages.</p>
+
+    <h2>What you’ll practice</h2>
+    <ul>
+      <li>Creating and using S3 buckets (input/output)</li>
+      <li>Authoring a Python Lambda function</li>
+      <li>Connecting S3 Event Notifications to a Lambda trigger</li>
+      <li>Reading/writing S3 objects from Lambda and checking CloudWatch Logs</li>
+    </ul>
+
+    <h2>Environment constraints (AWS Academy)</h2>
+    <ul>
+      <li><strong>No IAM role/policy creation.</strong> Use the existing role: <code>LabRole</code>.</li>
+      <li>Keep everything in the same AWS Region.</li>
+      <li>Public website hosting may be blocked; you can still download/open HTML locally.</li>
+    </ul>
+
+    <h2>High-level architecture</h2>
+    <pre>
+[You] → upload note.md ──▶  S3 (input)
+                               │ (event: ObjectCreated, suffix .md)
+                               ▼
+                         Lambda (Python)
+                               │  putObject: note.html, index.html
+                               ▼
+                           S3 (output)
+    </pre>
+  </main>
+</body>
+</html>
