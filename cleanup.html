@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Cleanup — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system; display:grid; grid-template-columns:260px 1fr; gap:2rem; margin:0; }
+    nav { background:#f7f7f8; min-height:100vh; padding:1.25rem; border-right:1px solid #eee; position:sticky; top:0; }
+    nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight:700; }
+    main { padding:2rem 2rem 4rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius:4px; }
+    ol li { margin-bottom:.45rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a href="overview.html">Overview</a>
+    <a href="buckets.html">Buckets</a>
+    <a href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a href="pipeline.html">S3 Event → Lambda</a>
+    <a href="test.html">Test</a>
+    <a class="active" href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Cleanup</h1>
+    <p>Remove resources so your Learner Lab returns to an empty state.</p>
+
+    <h2>Steps</h2>
+    <ol>
+      <li><strong>S3 event:</strong> In the <em>input</em> bucket, delete the <code>md-upload</code> event notification.</li>
+      <li><strong>Empty buckets:</strong> Empty both <code>notes-in-…</code> and <code>notes-out-…</code> buckets; then delete the buckets.</li>
+      <li><strong>Lambda:</strong> Delete the <code>md_to_html_publisher</code> function.</li>
+    </ol>
+
+    <h2>Submission (optional)</h2>
+    <ul>
+      <li>Screenshots: (1) S3 buckets showing input/output objects, (2) CloudWatch log for one invocation, (3) Rendered <code>meeting.html</code>.</li>
+      <li>2–3 sentences describing how the pipeline works and one enhancement you would add next.</li>
+    </ul>
+  </main>
+</body>
+</html>
