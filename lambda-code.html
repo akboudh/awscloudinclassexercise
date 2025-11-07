@@ -9,10 +9,15 @@
     nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
     nav a.active { font-weight:700; }
     main { padding:2rem 2rem 4rem; }
-    code, pre { background:#f4f4f6; padding:.8rem 1rem; border-radius:6px; overflow:auto; }
+    /* >>> CRITICAL: monospace, preserve whitespace, no ligatures */
+    pre, code {
+      background:#f4f4f6; padding:.8rem 1rem; border-radius:6px; overflow:auto;
+      white-space: pre; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-variant-ligatures: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    }
     .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; }
     .actions { margin:.6rem 0 1rem; }
-    .btn { display:inline-block; padding:.5rem .8rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; }
+    .btn { display:inline-block; padding:.5rem .8rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; }
   </style>
 </head>
 <body>
@@ -31,7 +36,7 @@
 
     <ol>
       <li>Open the function’s <strong>Code</strong> tab and click <code>lambda_function.py</code>.</li>
-      <li>Either click the <strong>Raw file</strong> button below to open a copy-and-paste-safe version, or copy from the display block.</li>
+      <li>Either click the <strong>Raw file</strong> button below to open a copy-safe version, or copy from the display block.</li>
       <li>Paste into the editor and click <strong>Deploy</strong>.</li>
     </ol>
 
@@ -45,9 +50,9 @@
       <br><strong>Optional:</strong> Set env var <code>OUTPUT_BUCKET</code> to your output bucket name.
     </div>
 
-    <!-- Correctly escaped for on-page display -->
-    <pre><code>&lt;!-- DISPLAY COPY ONLY (students should prefer the Raw button above) --&gt;
-import os
+    <!-- Wrap code block so Jekyll/Liquid doesn't process braces or backslashes -->
+    {% raw %}
+    <pre><code>import os
 import json
 import boto3
 import urllib.parse
@@ -56,14 +61,14 @@ import re
 
 s3 = boto3.client('s3')
 
-def inline_md(text: str) -&gt; str:
+def inline_md(text: str) -> str:
     text = re.sub(r'`([^`]+)`', r'&lt;code&gt;\1&lt;/code&gt;', text)
     text = re.sub(r'\*\*([^*]+)\*\*', r'&lt;strong&gt;\1&lt;/strong&gt;', text)
     text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'&lt;em&gt;\1&lt;/em&gt;', text)
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href="\2" target="_blank" rel="noopener"&gt;\1&lt;/a&gt;', text)
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href=&quot;\2&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;\1&lt;/a&gt;', text)
     return text
 
-def md_to_html(md: str) -&gt; str:
+def md_to_html(md: str) -> str:
     lines = md.splitlines()
     html_lines = []
     in_list = False
@@ -106,7 +111,7 @@ def md_to_html(md: str) -&gt; str:
     body = "\n".join(html_lines)
 
     return f"""&lt;!doctype html&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;Note&lt;/title&gt;&lt;/head&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;title&gt;Note&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
 &lt;div style='color:#666;font-size:small'&gt;Generated: {datetime.utcnow().isoformat()}Z&lt;/div&gt;
 {body}
@@ -120,7 +125,7 @@ def update_index(bucket: str):
         if key.endswith(".html") and key != "index.html":
             items.append(key)
     items.sort()
-    lis = "\n".join(f'&lt;li&gt;&lt;a href="{k}"&gt;{k}&lt;/a&gt;&lt;/li&gt;' for k in items)
+    lis = "\n".join(f'&lt;li&gt;&lt;a href=&quot;{k}&quot;&gt;{k}&lt;/a&gt;&lt;/li&gt;' for k in items)
     html = f"&lt;html&gt;&lt;body&gt;&lt;h1&gt;Notes&lt;/h1&gt;&lt;ul&gt;{lis}&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;"
     s3.put_object(Bucket=bucket, Key="index.html", Body=html.encode("utf-8"), ContentType="text/html")
 
@@ -150,6 +155,7 @@ def handler(event, context):
         update_index(dst_bucket)
 
     return {"status": "ok"}</code></pre>
+    {% endraw %}
 
   </main>
 </body>
