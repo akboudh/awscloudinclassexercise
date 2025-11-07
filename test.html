@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Test — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system; display:grid; grid-template-columns:260px 1fr; gap:2rem; margin:0; }
+    nav { background:#f7f7f8; min-height:100vh; padding:1.25rem; border-right:1px solid #eee; position:sticky; top:0; }
+    nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight:700; }
+    main { padding:2rem 2rem 4rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius:4px; }
+    .grid { display:grid; gap:1rem; grid-template-columns: 1fr 1fr; }
+    .card { border:1px solid #eee; border-radius:8px; padding:1rem; background:#fff; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a href="overview.html">Overview</a>
+    <a href="buckets.html">Buckets</a>
+    <a href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a href="pipeline.html">S3 Event → Lambda</a>
+    <a class="active" href="test.html">Test</a>
+    <a href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Test Your Pipeline</h1>
+    <p>Upload a new Markdown file to the <strong>input</strong> bucket and verify the HTML appears in the <strong>output</strong> bucket.</p>
+
+    <h2>1) Upload</h2>
+    <pre># meeting notes
+
+- Alice
+- Bob
+</pre>
+
+    <ol>
+      <li>Save as <code>meeting.md</code>.</li>
+      <li>Upload to <strong>input</strong> bucket (<code>notes-in-…</code>).</li>
+      <li>Wait a few seconds, then open the <strong>output</strong> bucket (<code>notes-out-…</code>).</li>
+    </ol>
+
+    <h2>2) Verify output</h2>
+    <ul>
+      <li><code>meeting.html</code> exists in the <strong>output</strong> bucket.</li>
+      <li><code>index.html</code> exists and lists the generated pages.</li>
+      <li>Download <code>meeting.html</code> and open it locally to view the rendered note.</li>
+    </ul>
+
+    <h2>3) Troubleshooting</h2>
+    <div class="grid">
+      <div class="card">
+        <strong>No files in output?</strong>
+        <ul>
+          <li>Confirm the S3 event notification is on the <em>input</em> bucket with suffix <code>.md</code>.</li>
+          <li>Re-upload the file (modify name or content to retrigger).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <strong>Lambda error?</strong>
+        <ul>
+          <li>Open <strong>CloudWatch Logs</strong> → find your function’s log group/stream.</li>
+          <li>Check for exceptions (copy the first error line/stack trace if you need help).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <strong>Handler mismatch?</strong>
+        <ul>
+          <li>Lambda <strong>Runtime settings</strong> → Handler must be <code>lambda_function.handler</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <strong>Wrong bucket names?</strong>
+        <ul>
+          <li>Ensure input ends with <code>-in</code> and output with <code>-out</code> to match code’s bucket swap.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
