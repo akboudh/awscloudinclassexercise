@@ -26,32 +26,32 @@
   </nav>
   <main>
     <h1>Overview</h1>
-    <p>In this lab you will build a tiny serverless “publisher”. When a Markdown (<code>.md</code>) file is uploaded to an <strong>input S3 bucket</strong>, a Lambda function converts it to <strong>HTML</strong> and writes it to an <strong>output S3 bucket</strong>. The function also maintains a simple <code>index.html</code> of all generated pages.</p>
+    <p>When a Markdown (<code>.md</code>) file is uploaded to an <strong>input S3 bucket</strong>, a Lambda function converts it to <strong>HTML</strong> and writes it to an <strong>output S3 bucket</strong>. The function also maintains a simple <code>index.html</code> in the output bucket.</p>
 
     <h2>What you’ll practice</h2>
     <ul>
-      <li>Creating and using S3 buckets (input/output)</li>
-      <li>Authoring a Python Lambda function</li>
-      <li>Connecting S3 Event Notifications to a Lambda trigger</li>
-      <li>Reading/writing S3 objects from Lambda and checking CloudWatch Logs</li>
+      <li>S3 buckets (input/output)</li>
+      <li>Python Lambda authoring</li>
+      <li>S3 Event Notifications → Lambda</li>
+      <li>CloudWatch Logs for debugging</li>
     </ul>
 
     <h2>Environment constraints (AWS Academy)</h2>
     <ul>
-      <li><strong>No IAM role/policy creation.</strong> Use the existing role: <code>LabRole</code>.</li>
-      <li>Keep everything in the same AWS Region.</li>
-      <li>Public website hosting may be blocked; you can still download/open HTML locally.</li>
+      <li><strong>No IAM role/policy creation.</strong> Use existing role: <code>LabRole</code>.</li>
+      <li>Keep everything in the same Region.</li>
+      <li>Website hosting may be blocked; download <code>.html</code> to view locally if needed.</li>
     </ul>
 
-    <h2>High-level architecture</h2>
+    <h2>Architecture</h2>
     <pre>
-[You] → upload note.md ──▶  S3 (input)
-                               │ (event: ObjectCreated, suffix .md)
+[You] → upload note.md ──▶  S3 (input: notes-in-…)
+                               │ event: ObjectCreated (suffix .md)
                                ▼
                          Lambda (Python)
                                │  putObject: note.html, index.html
                                ▼
-                           S3 (output)
+                         S3 (output: notes-out-…)
     </pre>
   </main>
 </body>
