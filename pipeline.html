@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>S3 Event → Lambda — S3→Lambda Markdown Publisher</title>
+  <style>
+    body { font-family: system-ui, -apple-system; display:grid; grid-template-columns:260px 1fr; gap:2rem; margin:0; }
+    nav { background:#f7f7f8; min-height:100vh; padding:1.25rem; border-right:1px solid #eee; position:sticky; top:0; }
+    nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
+    nav a.active { font-weight:700; }
+    main { padding:2rem 2rem 4rem; }
+    code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius:4px; }
+    table { border-collapse: collapse; }
+    td, th { padding: .4rem .6rem; border-bottom: 1px solid #eee; text-align: left; }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Serverless Notes Project</strong>
+    <a href="overview.html">Overview</a>
+    <a href="buckets.html">Buckets</a>
+    <a href="lambda-create.html">Create Lambda</a>
+    <a href="lambda-code.html">Lambda Code</a>
+    <a class="active" href="pipeline.html">S3 Event → Lambda</a>
+    <a href="test.html">Test</a>
+    <a href="cleanup.html">Cleanup</a>
+  </nav>
+  <main>
+    <h1>Connect S3 Event to Lambda</h1>
+    <p>We’ll configure the <strong>input</strong> bucket to trigger Lambda whenever a <code>.md</code> file is created.</p>
+
+    <h2>Steps</h2>
+    <ol>
+      <li>Open <strong>S3</strong> → your <strong>input</strong> bucket (<code>notes-in-…</code>).</li>
+      <li>Go to <strong>Properties</strong> → scroll to <strong>Event notifications</strong>.</li>
+      <li>Click <strong>Create event notification</strong> and set:</li>
+    </ol>
+
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>Name</td><td><code>md-upload</code></td></tr>
+      <tr><td>Event types</td><td><em>All object create events</em></td></tr>
+      <tr><td>Prefix</td><td>(leave blank)</td></tr>
+      <tr><td>Suffix</td><td><code>.md</code></td></tr>
+      <tr><td>Destination</td><td>Lambda function → <code>md_to_html_publisher</code></td></tr>
+    </table>
+
+    <p>Save the event notification.</p>
+  </main>
+</body>
+</html>
