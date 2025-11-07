@@ -29,22 +29,21 @@
     <p>We will use the existing Academy role <code>LabRole</code> (no IAM creation).</p>
 
     <ol>
-      <li>Open <strong>AWS Lambda</strong> → <strong>Create function</strong>.</li>
+      <li>AWS <strong>Lambda</strong> → <strong>Create function</strong></li>
       <li><strong>Function name:</strong> <code>md_to_html_publisher</code></li>
       <li><strong>Runtime:</strong> Python 3.12</li>
-      <li>Expand <strong>Change default execution role</strong> → select <strong>Use existing role</strong>.</li>
-      <li>Choose <strong>LabRole</strong>.</li>
+      <li>Expand <strong>Change default execution role</strong> → select <strong>Use existing role</strong> → choose <strong>LabRole</strong>.</li>
       <li>Click <strong>Create function</strong>.</li>
     </ol>
 
-    <h2>Set the handler name</h2>
+    <h2>Set the handler (new console)</h2>
     <ol>
-      <li>Open <strong>Configuration</strong> → <strong>Runtime settings</strong>.</li>
-      <li>Set <strong>Handler</strong> to: <code>lambda_function.handler</code></li>
-      <li>Click <strong>Save</strong>.</li>
+      <li>Open the <strong>Code</strong> tab (top).</li>
+      <li>On the <strong>right-hand side</strong>, find the small card <strong>Runtime settings</strong> → <strong>Edit</strong>.</li>
+      <li>Set <strong>Handler</strong> to <code>lambda_function.handler</code> → <strong>Save</strong>.</li>
     </ol>
 
-    <p>Next, you’ll paste the function code.</p>
+    <p>Next: paste the function code.</p>
   </main>
 </body>
 </html>
