@@ -9,15 +9,8 @@
     nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
     nav a.active { font-weight:700; }
     main { padding:2rem 2rem 4rem; }
-    /* >>> CRITICAL: monospace, preserve whitespace, no ligatures */
-    pre, code {
-      background:#f4f4f6; padding:.8rem 1rem; border-radius:6px; overflow:auto;
-      white-space: pre; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-variant-ligatures: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-    }
-    .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; }
-    .actions { margin:.6rem 0 1rem; }
-    .btn { display:inline-block; padding:.5rem .8rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; }
+    .btn { display:inline-block; padding:.65rem 1.1rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; margin:.5rem 0; }
+    .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; margin:1rem 0; }
   </style>
 </head>
 <body>
@@ -31,131 +24,21 @@
     <a href="test.html">Test</a>
     <a href="cleanup.html">Cleanup</a>
   </nav>
+
   <main>
     <h1>Paste the Lambda Code (Python)</h1>
 
-    <ol>
-      <li>Open the function’s <strong>Code</strong> tab and click <code>lambda_function.py</code>.</li>
-      <li>Either click the <strong>Raw file</strong> button below to open a copy-safe version, or copy from the display block.</li>
-      <li>Paste into the editor and click <strong>Deploy</strong>.</li>
-    </ol>
+    <p>1) Open the Lambda function → Code tab → open <code>lambda_function.py</code><br>
+       2) Click the download button below to download the correct Python file<br>
+       3) Upload that file directly into the Code editor → click <strong>Deploy</strong></p>
 
-    <div class="actions">
-      <!-- assumes the raw file is in the repo root -->
-      <a class="btn" href="lambda_function.py" target="_blank" rel="noopener">Open Raw <code>lambda_function.py</code></a>
-    </div>
+    <a class="btn" href="lambda_function.py" download>Download lambda_function.py</a>
 
     <div class="tip">
-      <strong>Handler (new console):</strong> Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → set to <code>lambda_function.handler</code> → Save.
-      <br><strong>Optional:</strong> Set env var <code>OUTPUT_BUCKET</code> to your output bucket name.
+      <strong>Handler:</strong> Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → set to:<br>
+      <code>lambda_function.handler</code><br><br>
+      <strong>Optional:</strong> Set env var <code>OUTPUT_BUCKET</code> = your output bucket name
     </div>
-
-    <!-- Wrap code block so Jekyll/Liquid doesn't process braces or backslashes -->
-    {% raw %}
-    <pre><code>import os
-import json
-import boto3
-import urllib.parse
-from datetime import datetime
-import re
-
-s3 = boto3.client('s3')
-
-def inline_md(text: str) -> str:
-    text = re.sub(r'`([^`]+)`', r'&lt;code&gt;\1&lt;/code&gt;', text)
-    text = re.sub(r'\*\*([^*]+)\*\*', r'&lt;strong&gt;\1&lt;/strong&gt;', text)
-    text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'&lt;em&gt;\1&lt;/em&gt;', text)
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href=&quot;\2&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;\1&lt;/a&gt;', text)
-    return text
-
-def md_to_html(md: str) -> str:
-    lines = md.splitlines()
-    html_lines = []
-    in_list = False
-
-    def close_list():
-        nonlocal in_list
-        if in_list:
-            html_lines.append("&lt;/ul&gt;")
-            in_list = False
-
-    for raw in lines:
-        line = raw.rstrip()
-
-        m = re.match(r'^(#{1,3})\s+(.*)$', line)
-        if m:
-            close_list()
-            level = len(m.group(1))
-            text = m.group(2)
-            html_lines.append(f"&lt;h{level}&gt;{inline_md(text)}&lt;/h{level}&gt;")
-            continue
-
-        if re.match(r'^\s*[-*+]\s+', line):
-            if not in_list:
-                html_lines.append("&lt;ul&gt;")
-                in_list = True
-            item = re.sub(r'^\s*[-*+]\s+', '', line)
-            html_lines.append(f"&lt;li&gt;{inline_md(item)}&lt;/li&gt;")
-            continue
-
-        if line.strip() == "":
-            close_list()
-            html_lines.append("")
-            continue
-
-        close_list()
-        html_lines.append(f"&lt;p&gt;{inline_md(line)}&lt;/p&gt;")
-
-    close_list()
-
-    body = "\n".join(html_lines)
-
-    return f"""&lt;!doctype html&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;title&gt;Note&lt;/title&gt;&lt;/head&gt;
-&lt;body&gt;
-&lt;div style='color:#666;font-size:small'&gt;Generated: {datetime.utcnow().isoformat()}Z&lt;/div&gt;
-{body}
-&lt;/body&gt;&lt;/html&gt;"""
-
-def update_index(bucket: str):
-    objs = s3.list_objects_v2(Bucket=bucket)
-    items = []
-    for obj in objs.get('Contents', []):
-        key = obj['Key']
-        if key.endswith(".html") and key != "index.html":
-            items.append(key)
-    items.sort()
-    lis = "\n".join(f'&lt;li&gt;&lt;a href=&quot;{k}&quot;&gt;{k}&lt;/a&gt;&lt;/li&gt;' for k in items)
-    html = f"&lt;html&gt;&lt;body&gt;&lt;h1&gt;Notes&lt;/h1&gt;&lt;ul&gt;{lis}&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;"
-    s3.put_object(Bucket=bucket, Key="index.html", Body=html.encode("utf-8"), ContentType="text/html")
-
-def handler(event, context):
-    for record in event.get("Records", []):
-        src_bucket = record["s3"]["bucket"]["name"]
-        src_key = urllib.parse.unquote_plus(record["s3"]["object"]["key"])
-
-        if not src_key.lower().endswith(".md"):
-            continue
-
-        obj = s3.get_object(Bucket=src_bucket, Key=src_key)
-        md = obj["Body"].read().decode("utf-8")
-
-        html = md_to_html(md)
-
-        dst_bucket = os.environ.get("OUTPUT_BUCKET")
-        if not dst_bucket:
-            if src_bucket.endswith("-in"):
-                dst_bucket = src_bucket.replace("-in","-out",1)
-            else:
-                dst_bucket = src_bucket
-
-        dst_key = src_key.rsplit(".", 1)[0] + ".html"
-
-        s3.put_object(Bucket=dst_bucket, Key=dst_key, Body=html.encode("utf-8"), ContentType="text/html")
-        update_index(dst_bucket)
-
-    return {"status": "ok"}</code></pre>
-    {% endraw %}
 
   </main>
 </body>
