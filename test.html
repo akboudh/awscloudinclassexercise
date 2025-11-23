@@ -12,6 +12,21 @@
     code, pre { background:#f4f4f6; padding:.2rem .4rem; border-radius:4px; }
     .grid { display:grid; gap:1rem; grid-template-columns: 1fr 1fr; }
     .card { border:1px solid #eee; border-radius:8px; padding:1rem; background:#fff; }
+
+    /* New: simple download button style */
+    .button {
+      display:inline-block;
+      padding:0.6rem 1.1rem;
+      border-radius:999px;
+      border:1px solid #ddd;
+      text-decoration:none;
+      font-size:0.95rem;
+      background:#fff;
+      cursor:pointer;
+    }
+    .button:hover {
+      background:#f0f0f2;
+    }
   </style>
 </head>
 <body>
@@ -27,30 +42,33 @@
   </nav>
   <main>
     <h1>Test Your Pipeline</h1>
-    <p>You can now download a ready-made <code>.md</code> file instead of creating one manually.</p>
+    <p>
+      Download the sample Markdown file below and upload it to the
+      <strong>input</strong> bucket. Then verify the HTML appears in the
+      <strong>output</strong> bucket.
+    </p>
 
-<h2>1) Download & Upload</h2>
+    <h2>1) Download sample note</h2>
+    <p>
+      <a href="meeting.md" download class="button">⬇️ Download <code>meeting.md</code></a>
+    </p>
+    <p>
+      If your browser opens the file instead of downloading it, right-click the link
+      and choose <em>“Save link as…”</em>, then save it as <code>meeting.md</code>.
+    </p>
 
-<div class="card" style="margin-bottom:1rem;">
-  <p><strong>Download sample Markdown file:</strong></p>
-  <p><a href="meeting.md" download="meeting.md">➡️ Click here to download <code>meeting.md</code></a></p>
-  <p style="font-size:0.9rem;">
-    (Make sure <code>meeting.md</code> is in the same folder as <code>test.html</code> in your GitHub Pages repo.)
-  </p>
-</div>
-
-<pre># meeting notes
+    <h3>What’s inside the file (for reference)</h3>
+    <pre># meeting notes
 
 - Alice
 - Bob
 </pre>
 
-<ol>
-  <li>Download the file above.</li>
-  <li>Upload <code>meeting.md</code> to your <strong>notes-in-…</strong> bucket.</li>
-  <li>Check your <strong>notes-out-…</strong> bucket after a few seconds.</li>
-</ol>
-
+    <ol>
+      <li>Download <code>meeting.md</code> using the button above.</li>
+      <li>Upload it to your <strong>notes-in-…</strong> input bucket.</li>
+      <li>Check <strong>notes-out-…</strong> after a few seconds.</li>
+    </ol>
 
     <h2>2) Verify output</h2>
     <ul>
