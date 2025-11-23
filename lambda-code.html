@@ -9,30 +9,10 @@
     nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
     nav a.active { font-weight:700; }
     main { padding:2rem 2rem 4rem; }
-    code, pre { background:#f4f4f6; border-radius:4px; }
-    pre { padding:1rem; overflow:auto; }
-    .copy-bar {
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-      margin:1rem 0;
-    }
-    .copy-button {
-      padding:.5rem 1rem;
-      border:none;
-      border-radius:4px;
-      background:#28a745;
-      color:#fff;
-      font-size:.9rem;
-      cursor:pointer;
-    }
-    .copy-button:hover {
-      background:#218838;
-    }
-    #copyStatus {
-      font-size:.85rem;
-      color:#555;
-    }
+    .btn { display:inline-block; padding:.65rem 1.1rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; margin:.5rem 0; cursor:pointer; }
+    .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; margin:1rem 0; }
+    pre { background:#f4f4f6; padding:1rem; border-radius:6px; overflow:auto; }
+    .btn-primary { border-color:#007bff; }
   </style>
 </head>
 <body>
@@ -46,19 +26,48 @@
     <a href="test.html">Test</a>
     <a href="cleanup.html">Cleanup</a>
   </nav>
-  <main>
-    <h1>Lambda Function Code</h1>
-    <p>
-      Use the code below as your Lambda function (<code>lambda_function.py</code>).
-      You can copy it with a single click and paste it into the Lambda console or your IDE.
-    </p>
 
-    <div class="copy-bar">
-      <button class="copy-button" type="button" onclick="copyCode()">Copy code</button>
-      <span id="copyStatus"></span>
+  <main>
+    <h1>Paste the Lambda Code (Python)</h1>
+
+    <p>1) Open the Lambda function → Code tab → open <code>lambda_function.py</code><br>
+       2) Click the download button below to download the correct Python file<br>
+       3) Upload that file directly into the Code editor → click <strong>Deploy</strong></p>
+
+    <!-- Download button (unchanged) -->
+    <a class="btn btn-primary" href="lambda_function.py" download>Download lambda_function.py</a>
+
+    <div class="tip">
+      <strong>Handler MUST be:</strong>
+      <div><code>lambda_function.handler</code></div>
+      <br>
+      AWS Console path:<br>
+      Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → paste <code>lambda_function.handler</code> → Save.
     </div>
 
-    <pre><code id="lambdaCode">import os
+    <div class="tip">
+      <strong>Environment Variable (sets your output bucket):</strong><br>
+      AWS Console →
+      <em>Configuration</em> tab →
+      <em>Environment variables</em> →
+      <strong>Edit</strong> →
+      <strong>Add environment variable</strong><br><br>
+      Key: <code>OUTPUT_BUCKET</code><br>
+      Value: <code>your-output-bucket-name</code><br><br>
+      Example value: <code>notes-out-12345</code><br><br>
+      Click Save.
+    </div>
+
+    <h2>Or copy-paste the code</h2>
+    <p>If you prefer, you can copy the code directly from below instead of using the download button.</p>
+
+    <button class="btn" type="button" onclick="copyCode()">Copy code to clipboard</button>
+
+    <pre id="code-block"></pre>
+
+    <!-- Raw Python source, stored safely inside a text/plain script tag -->
+    <script type="text/plain" id="lambda-source">
+import os
 import json
 import boto3
 import urllib.parse
@@ -67,14 +76,14 @@ import re
 
 s3 = boto3.client('s3')
 
-def inline_md(text: str) -&gt; str:
-    text = re.sub(r'`([^`]+)`', r'&lt;code&gt;\1&lt;/code&gt;', text)
-    text = re.sub(r'\*\*([^*]+)\*\*', r'&lt;strong&gt;\1&lt;/strong&gt;', text)
-    text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'&lt;em&gt;\1&lt;/em&gt;', text)
-    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href="\2" target="_blank" rel="noopener"&gt;\1&lt;/a&gt;', text)
+def inline_md(text: str) -> str:
+    text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'<em>\1</em>', text)
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank" rel="noopener">\1</a>', text)
     return text
 
-def md_to_html(md: str) -&gt; str:
+def md_to_html(md: str) -> str:
     lines = md.splitlines()
     html_lines = []
     in_list = False
@@ -82,7 +91,7 @@ def md_to_html(md: str) -&gt; str:
     def close_list():
         nonlocal in_list
         if in_list:
-            html_lines.append("&lt;/ul&gt;")
+            html_lines.append("</ul>")
             in_list = False
 
     for raw in lines:
@@ -154,7 +163,7 @@ def handler(event, context):
         # Convert
         html = md_to_html(md)
 
-        # Prefer explicit OUTPUT_BUCKET; else try -in -&gt; -out; else fallback
+        # Prefer explicit OUTPUT_BUCKET; else try -in -> -out; else fallback
         dst_bucket = os.environ.get("OUTPUT_BUCKET")
         if not dst_bucket:
             if src_bucket.endswith("-in"):
@@ -176,20 +185,22 @@ def handler(event, context):
         # Update index in destination
         update_index(dst_bucket)
 
-    return {"status": "ok"}</code></pre>
+    return {"status": "ok"}
+    </script>
 
     <script>
-      function copyCode() {
-        const codeEl = document.getElementById('lambdaCode');
-        const text = codeEl.textContent || codeEl.innerText || '';
+      // Get the raw (HTML-escaped) code from the script tag,
+      // unescape the &lt; and &gt; for display, and wire up copy.
+      const raw = document.getElementById('lambda-source').textContent.trim();
+      const unescaped = raw.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      const pre = document.getElementById('code-block');
+      pre.textContent = unescaped;
 
-        navigator.clipboard.writeText(text).then(() => {
-          const status = document.getElementById('copyStatus');
-          status.textContent = 'Code copied!';
-          setTimeout(() => { status.textContent = ''; }, 2000);
-        }).catch(err => {
-          const status = document.getElementById('copyStatus');
-          status.textContent = 'Failed to copy: ' + err;
+      function copyCode() {
+        navigator.clipboard.writeText(unescaped).then(function () {
+          alert('Lambda code copied to clipboard.');
+        }).catch(function (err) {
+          alert('Failed to copy: ' + err);
         });
       }
     </script>
