@@ -9,8 +9,30 @@
     nav a { display:block; margin:.35rem 0; text-decoration:none; color:#333; }
     nav a.active { font-weight:700; }
     main { padding:2rem 2rem 4rem; }
-    .btn { display:inline-block; padding:.65rem 1.1rem; border:1px solid #ddd; border-radius:6px; text-decoration:none; background:#fff; margin:.5rem 0; }
-    .tip { background:#fff8e1; border:1px solid #f3e1a1; padding:.7rem 1rem; border-radius:6px; margin:1rem 0; }
+    code, pre { background:#f4f4f6; border-radius:4px; }
+    pre { padding:1rem; overflow:auto; }
+    .copy-bar {
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      margin:1rem 0;
+    }
+    .copy-button {
+      padding:.5rem 1rem;
+      border:none;
+      border-radius:4px;
+      background:#28a745;
+      color:#fff;
+      font-size:.9rem;
+      cursor:pointer;
+    }
+    .copy-button:hover {
+      background:#218838;
+    }
+    #copyStatus {
+      font-size:.85rem;
+      color:#555;
+    }
   </style>
 </head>
 <body>
@@ -24,37 +46,153 @@
     <a href="test.html">Test</a>
     <a href="cleanup.html">Cleanup</a>
   </nav>
-
   <main>
-    <h1>Paste the Lambda Code (Python)</h1>
+    <h1>Lambda Function Code</h1>
+    <p>
+      Use the code below as your Lambda function (<code>lambda_function.py</code>).
+      You can copy it with a single click and paste it into the Lambda console or your IDE.
+    </p>
 
-    <p>1) Open the Lambda function → Code tab → open <code>lambda_function.py</code><br>
-       2) Click the download button below to download the correct Python file<br>
-       3) Upload that file directly into the Code editor → click <strong>Deploy</strong></p>
-
-    <a class="btn" href="lambda_function.py" download>Download lambda_function.py</a>
-
-    <div class="tip">
-      <strong>Handler MUST be:</strong>
-      <div><code>lambda_function.handler</code></div>
-      <br>
-      AWS Console path:<br>
-      Code tab → right-side <em>Runtime settings</em> → <strong>Edit</strong> → paste <code>lambda_function.handler</code> → Save.
+    <div class="copy-bar">
+      <button class="copy-button" type="button" onclick="copyCode()">Copy code</button>
+      <span id="copyStatus"></span>
     </div>
 
-    <div class="tip">
-      <strong>Environment Variable (sets your output bucket):</strong><br>
-      AWS Console →
-      <em>Configuration</em> tab →
-      <em>Environment variables</em> →
-      <strong>Edit</strong> →
-      <strong>Add environment variable</strong><br><br>
-      Key: <code>OUTPUT_BUCKET</code><br>
-      Value: <code>your-output-bucket-name</code><br><br>
-      Example value: <code>notes-out-12345</code><br><br>
-      Click Save.
-    </div>
+    <pre><code id="lambdaCode">import os
+import json
+import boto3
+import urllib.parse
+from datetime import datetime
+import re
 
+s3 = boto3.client('s3')
+
+def inline_md(text: str) -&gt; str:
+    text = re.sub(r'`([^`]+)`', r'&lt;code&gt;\1&lt;/code&gt;', text)
+    text = re.sub(r'\*\*([^*]+)\*\*', r'&lt;strong&gt;\1&lt;/strong&gt;', text)
+    text = re.sub(r'(?&lt;!\*)\*([^*]+)\*(?!\*)', r'&lt;em&gt;\1&lt;/em&gt;', text)
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'&lt;a href="\2" target="_blank" rel="noopener"&gt;\1&lt;/a&gt;', text)
+    return text
+
+def md_to_html(md: str) -&gt; str:
+    lines = md.splitlines()
+    html_lines = []
+    in_list = False
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            html_lines.append("&lt;/ul&gt;")
+            in_list = False
+
+    for raw in lines:
+        line = raw.rstrip()
+
+        # Headings
+        m = re.match(r'^(#{1,3})\s+(.*)$', line)
+        if m:
+            close_list()
+            level = len(m.group(1))
+            text = m.group(2)
+            html_lines.append(f"&lt;h{level}&gt;{inline_md(text)}&lt;/h{level}&gt;")
+            continue
+
+        # Unordered list
+        if re.match(r'^\s*[-*+]\s+', line):
+            if not in_list:
+                html_lines.append("&lt;ul&gt;")
+                in_list = True
+            item = re.sub(r'^\s*[-*+]\s+', '', line)
+            html_lines.append(f"&lt;li&gt;{inline_md(item)}&lt;/li&gt;")
+            continue
+
+        # Blank line
+        if line.strip() == "":
+            close_list()
+            html_lines.append("")
+            continue
+
+        # Paragraph
+        close_list()
+        html_lines.append(f"&lt;p&gt;{inline_md(line)}&lt;/p&gt;")
+
+    close_list()
+
+    body = "\n".join(html_lines)
+
+    return f"""&lt;!doctype html&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;Note&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div style='color:#666;font-size:small'&gt;Generated: {datetime.utcnow().isoformat()}Z&lt;/div&gt;
+{body}
+&lt;/body&gt;&lt;/html&gt;"""
+
+def update_index(bucket: str):
+    objs = s3.list_objects_v2(Bucket=bucket)
+    items = []
+    for obj in objs.get('Contents', []):
+        key = obj['Key']
+        if key.endswith(".html") and key != "index.html":
+            items.append(key)
+    items.sort()
+    lis = "\n".join(f'&lt;li&gt;&lt;a href="{k}"&gt;{k}&lt;/a&gt;&lt;/li&gt;' for k in items)
+    html = f"&lt;html&gt;&lt;body&gt;&lt;h1&gt;Notes&lt;/h1&gt;&lt;ul&gt;{lis}&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;"
+    s3.put_object(Bucket=bucket, Key="index.html", Body=html.encode("utf-8"), ContentType="text/html")
+
+def handler(event, context):
+    for record in event.get("Records", []):
+        src_bucket = record["s3"]["bucket"]["name"]
+        src_key = urllib.parse.unquote_plus(record["s3"]["object"]["key"])
+
+        if not src_key.lower().endswith(".md"):
+            continue
+
+        # Read Markdown
+        obj = s3.get_object(Bucket=src_bucket, Key=src_key)
+        md = obj["Body"].read().decode("utf-8")
+
+        # Convert
+        html = md_to_html(md)
+
+        # Prefer explicit OUTPUT_BUCKET; else try -in -&gt; -out; else fallback
+        dst_bucket = os.environ.get("OUTPUT_BUCKET")
+        if not dst_bucket:
+            if src_bucket.endswith("-in"):
+                dst_bucket = src_bucket.replace("-in", "-out", 1)
+            else:
+                dst_bucket = src_bucket  # fallback
+
+        # Same key, .html extension
+        dst_key = src_key.rsplit(".", 1)[0] + ".html"
+
+        # Write HTML
+        s3.put_object(
+            Bucket=dst_bucket,
+            Key=dst_key,
+            Body=html.encode("utf-8"),
+            ContentType="text/html"
+        )
+
+        # Update index in destination
+        update_index(dst_bucket)
+
+    return {"status": "ok"}</code></pre>
+
+    <script>
+      function copyCode() {
+        const codeEl = document.getElementById('lambdaCode');
+        const text = codeEl.textContent || codeEl.innerText || '';
+
+        navigator.clipboard.writeText(text).then(() => {
+          const status = document.getElementById('copyStatus');
+          status.textContent = 'Code copied!';
+          setTimeout(() => { status.textContent = ''; }, 2000);
+        }).catch(err => {
+          const status = document.getElementById('copyStatus');
+          status.textContent = 'Failed to copy: ' + err;
+        });
+      }
+    </script>
   </main>
 </body>
 </html>
